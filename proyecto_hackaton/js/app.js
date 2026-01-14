@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initForm();
     initChat();
     initRadarView();
+    
+    // Cargar Vista de Cartera (es la pestaña principal ahora)
+    updateRadarView();
 });
 
 // ============================================================================
@@ -113,6 +116,107 @@ function initForm() {
         e.preventDefault();
         evaluarCliente();
     });
+    
+    // MONITOREO EN TIEMPO REAL
+    initRealTimeMonitoring();
+}
+
+// ============================================================================
+// ALERTAS EN TIEMPO REAL
+// ============================================================================
+
+function initRealTimeMonitoring() {
+    const camposMonitoreados = [
+        { id: 'nivelServicio', nombre: 'Nivel de Servicio', umbralCritico: 85, umbralAlerta: 90, unidad: '%' },
+        { id: 'puntualidad', nombre: 'Puntualidad', umbralCritico: 85, umbralAlerta: 90, unidad: '%' },
+        { id: 'nps', nombre: 'NPS', umbralCritico: 30, umbralAlerta: 50, unidad: '' },
+        { id: 'quejas', nombre: 'Quejas Abiertas', umbralCritico: 3, umbralAlerta: 2, unidad: '', esInverso: true },
+        { id: 'mesesContrato', nombre: 'Renovación', umbralCritico: 3, umbralAlerta: 6, unidad: ' meses', esInverso: false }
+    ];
+    
+    camposMonitoreados.forEach(campo => {
+        const input = document.getElementById(campo.id);
+        if (!input) return;
+        
+        // Evento al cambiar el valor
+        input.addEventListener('input', () => {
+            evaluarCampoEnTiempoReal(campo, parseFloat(input.value));
+        });
+        
+        // También al perder el foco
+        input.addEventListener('change', () => {
+            evaluarCampoEnTiempoReal(campo, parseFloat(input.value));
+        });
+    });
+    
+    // Monitorear tendencia
+    const tendencia = document.getElementById('tendencia');
+    if (tendencia) {
+        tendencia.addEventListener('change', () => {
+            if (tendencia.value === 'negativa') {
+                mostrarAlertaTiempoReal('Alerta de Tendencia', 'La tendencia negativa indica deterioro continuo. Se recomienda acción preventiva.', 'warning');
+            }
+        });
+    }
+}
+
+function evaluarCampoEnTiempoReal(campo, valor) {
+    if (isNaN(valor)) return;
+    
+    const alertBox = document.getElementById('realTimeAlert');
+    const alertTitle = document.getElementById('alertTitle');
+    const alertMessage = document.getElementById('alertMessage');
+    
+    let nivel = 'ok';
+    let mensaje = '';
+    
+    if (campo.esInverso) {
+        // Para quejas: mayor valor es peor
+        if (valor >= campo.umbralCritico) {
+            nivel = 'critical';
+            mensaje = `${campo.nombre} en nivel CRÍTICO (${valor}${campo.unidad}). Requiere atención inmediata.`;
+        } else if (valor >= campo.umbralAlerta) {
+            nivel = 'warning';
+            mensaje = `${campo.nombre} elevado (${valor}${campo.unidad}). Monitorear de cerca.`;
+        }
+    } else {
+        // Para métricas normales: menor valor es peor
+        if (valor < campo.umbralCritico) {
+            nivel = 'critical';
+            mensaje = `${campo.nombre} por debajo del umbral crítico (${valor}${campo.unidad} < ${campo.umbralCritico}${campo.unidad}). Acción urgente requerida.`;
+        } else if (valor < campo.umbralAlerta) {
+            nivel = 'warning';
+            mensaje = `${campo.nombre} en zona de alerta (${valor}${campo.unidad} < ${campo.umbralAlerta}${campo.unidad}). Requiere atención.`;
+        }
+    }
+    
+    if (nivel !== 'ok') {
+        mostrarAlertaTiempoReal(campo.nombre, mensaje, nivel);
+    }
+}
+
+function mostrarAlertaTiempoReal(titulo, mensaje, nivel) {
+    const alertBox = document.getElementById('realTimeAlert');
+    const alertTitle = document.getElementById('alertTitle');
+    const alertMessage = document.getElementById('alertMessage');
+    
+    alertTitle.textContent = titulo;
+    alertMessage.textContent = mensaje;
+    
+    // Remover clases anteriores y añadir nueva
+    alertBox.classList.remove('hidden', 'alert-warning', 'alert-critical');
+    alertBox.classList.add(nivel === 'critical' ? 'alert-critical' : 'alert-warning');
+    
+    // Animación de aparición
+    alertBox.style.animation = 'none';
+    alertBox.offsetHeight; // Trigger reflow
+    alertBox.style.animation = 'slideIn 0.3s ease';
+    
+    // Ocultar después de 5 segundos
+    clearTimeout(window.alertTimeout);
+    window.alertTimeout = setTimeout(() => {
+        alertBox.classList.add('hidden');
+    }, 5000);
 }
 
 function evaluarCliente() {
@@ -200,6 +304,9 @@ function mostrarResultados(resultado) {
     
     // Impacto financiero
     actualizarFinanciero(impactoFinanciero);
+    
+    // NUEVO: Generar análisis del Agente IA automáticamente
+    generarAnalisisIA(resultado);
 }
 
 function actualizarSemaforo(score, clasificacion) {
@@ -384,6 +491,87 @@ function actualizarFinanciero(financiero) {
 }
 
 // ============================================================================
+// ANÁLISIS AUTOMÁTICO DEL AGENTE IA (GEMINI)
+// ============================================================================
+
+async function generarAnalisisIA(resultado) {
+    const container = document.getElementById('agentResponse');
+    if (!container) return;
+    
+    const { cliente, analisis, recomendaciones, impactoFinanciero } = resultado;
+    
+    // Mostrar estado de carga
+    container.innerHTML = '<div class="agent-loading">Generando análisis del agente...</div>';
+    
+    // Crear prompt automático basado en el contexto del cliente
+    const prompt = `
+        Como experto en Customer Success para Traxión, analiza este cliente y da tu recomendación ejecutiva.
+        
+        CLIENTE: ${cliente.nombre}
+        INDUSTRIA: ${cliente.industria}
+        ANTIGÜEDAD: ${cliente.antiguedad} meses
+        
+        MÉTRICAS ACTUALES:
+        - Nivel de Servicio: ${cliente.metricas.nivelServicio}%
+        - Puntualidad: ${cliente.metricas.puntualidad}%
+        - NPS: ${cliente.metricas.nps}
+        - Quejas Abiertas: ${cliente.metricas.quejas}
+        - Tendencia: ${cliente.metricas.tendencia}
+        
+        ANÁLISIS:
+        - Score de Riesgo: ${analisis.score}/100
+        - Nivel: ${analisis.clasificacion.nivel}
+        
+        CONTRATO:
+        - Valor Anual: $${(cliente.valorContrato / 1000000).toFixed(1)}M MXN
+        - Meses para Renovación: ${cliente.contrato.mesesRestantes}
+        
+        IMPACTO FINANCIERO:
+        - Probabilidad de Pérdida: ${(impactoFinanciero.probabilidadPerdida * 100).toFixed(0)}%
+        - Pérdida Esperada: $${(impactoFinanciero.perdidaEsperada / 1000000).toFixed(2)}M
+        
+        INSTRUCCIONES:
+        1. Da un diagnóstico breve y directo (2-3 líneas).
+        2. Lista los 3 pasos de acción más importantes ordenados por prioridad.
+        3. Indica el responsable y plazo para cada acción.
+        4. Sé conciso, profesional y usa formato estructurado.
+        5. NO uses emojis. Usa negritas (**texto**) para destacar.
+    `;
+    
+    try {
+        // Consultar Gemini
+        const respuestaIA = await window.CustomerHealthAgent.consultarGemini(prompt, resultado);
+        
+        // Formatear y mostrar respuesta
+        let mensajeFormateado = respuestaIA
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>')
+            .replace(/- /g, '• ');
+        
+        container.innerHTML = `<div class="agent-content">${mensajeFormateado}</div>`;
+        
+    } catch (error) {
+        console.error('Error en análisis IA:', error);
+        
+        // Fallback: Mostrar análisis local
+        const fallback = `
+            <div class="agent-content">
+                <strong>Diagnóstico:</strong> Cliente con riesgo ${analisis.clasificacion.nivel}. 
+                Score actual de ${analisis.score}/100 con tendencia ${cliente.metricas.tendencia}.<br><br>
+                
+                <strong>Acciones Prioritarias:</strong><br>
+                ${recomendaciones.slice(0, 3).map((r, i) => 
+                    `${i+1}. <strong>${r.accion}</strong> - ${r.responsable} (${r.plazo})`
+                ).join('<br>')}<br><br>
+                
+                <strong>Nota:</strong> Análisis generado localmente. Configure la API Key de Gemini para recomendaciones avanzadas.
+            </div>
+        `;
+        container.innerHTML = fallback;
+    }
+}
+
+// ============================================================================
 // VISTA RADAR (CARTERA COMPLETA)
 // ============================================================================
 
@@ -411,8 +599,63 @@ function updateRadarView() {
         `$${(cartera.valorEnRiesgo / 1000000).toFixed(1)}M`;
     document.getElementById('alertasUrgentes').textContent = cartera.alertasUrgentes;
     
+    // Actualizar panel de alertas urgentes
+    actualizarAlertas(cartera.clientesPorPrioridad);
+    
     // Actualizar tabla
     actualizarTablaClientes(cartera.clientesPorPrioridad);
+}
+
+// Función para mostrar SOLO clientes en riesgo ALTO y CRÍTICO
+function actualizarAlertas(clientes) {
+    const container = document.getElementById('alertsList');
+    const section = document.getElementById('alertsSection');
+    
+    // Filtrar solo alto y crítico
+    const urgentes = clientes.filter(item => 
+        item.analisis.clasificacion.nivel === 'ALTO' || 
+        item.analisis.clasificacion.nivel === 'CRÍTICO'
+    );
+    
+    // Si no hay urgentes, ocultar la sección
+    if (urgentes.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+    
+    section.style.display = 'block';
+    container.innerHTML = '';
+    
+    urgentes.forEach(item => {
+        const { cliente, analisis, recomendaciones } = item;
+        const nivel = analisis.clasificacion.nivel;
+        const badgeClass = nivel === 'CRÍTICO' ? 'critico' : 'alto';
+        
+        const div = document.createElement('div');
+        div.className = 'alert-item';
+        
+        div.innerHTML = `
+            <div class="alert-info">
+                <span class="alert-badge ${badgeClass}">${nivel}</span>
+                <strong class="alert-client">${cliente.nombre}</strong>
+                <span class="alert-meta">Score: ${analisis.score} | Valor: $${(cliente.valorContrato / 1000000).toFixed(1)}M | Renovación: ${cliente.contrato.mesesRestantes} meses</span>
+            </div>
+            <div class="alert-action">
+                <span class="alert-action-text">${recomendaciones[0]?.accion || 'Revisar'}</span>
+            </div>
+        `;
+        
+        // Click para analizar
+        div.style.cursor = 'pointer';
+        div.addEventListener('click', () => {
+            document.querySelector('[data-tab="individual"]').click();
+            document.getElementById('selectCliente').value = cliente.id;
+            document.getElementById('selectCliente').dispatchEvent(new Event('change'));
+            setTimeout(evaluarCliente, 100);
+        });
+        
+        container.appendChild(div);
+    });
 }
 
 function actualizarTablaClientes(clientes) {

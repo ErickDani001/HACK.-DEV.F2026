@@ -45,15 +45,15 @@
         <!-- TABS -->
         <!-- ============================================ -->
         <div class="tabs">
-            <button class="tab active" data-tab="individual">Análisis Individual</button>
-            <button class="tab" data-tab="radar">Vista de Cartera</button>
+            <button class="tab active" data-tab="radar">Vista de Cartera</button>
+            <button class="tab" data-tab="individual">Análisis Individual</button>
             <button class="tab" data-tab="chat">Asistente IA</button>
         </div>
 
         <!-- ============================================ -->
         <!-- VISTA INDIVIDUAL -->
         <!-- ============================================ -->
-        <div id="tab-individual" class="tab-content active">
+        <div id="tab-individual" class="tab-content">
             <div class="grid-2-cols">
                 <!-- COLUMNA IZQUIERDA: INPUTS -->
                 <div class="form-column">
@@ -61,6 +61,18 @@
                         <div class="card-header">
                             <h3 class="card-title">Datos del Cliente</h3>
                         </div>
+                        
+                        <!-- ALERTAS EN TIEMPO REAL -->
+                        <div id="realTimeAlert" class="realtime-alert hidden">
+                            <div class="realtime-alert-content">
+                                <span class="realtime-alert-icon">!</span>
+                                <div class="realtime-alert-text">
+                                    <strong id="alertTitle">Alerta</strong>
+                                    <p id="alertMessage">Mensaje de alerta</p>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="card-body">
                             <form id="formEvaluar" class="form">
                                 <div class="form-group">
@@ -200,6 +212,18 @@
                             </div>
                         </div>
 
+                        <!-- ANÁLISIS DEL AGENTE IA -->
+                        <div class="card agent-card">
+                            <div class="card-header">
+                                <h4 class="card-title-sm">Análisis y Recomendación del Agente IA</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="agentResponse" class="agent-response">
+                                    <p class="agent-placeholder">Ejecute el análisis para recibir recomendaciones del agente.</p>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -208,7 +232,7 @@
         <!-- ============================================ -->
         <!-- VISTA RADAR (CARTERA) -->
         <!-- ============================================ -->
-        <div id="tab-radar" class="tab-content">
+        <div id="tab-radar" class="tab-content active">
             <!-- KPIs -->
             <div class="kpi-grid">
                 <div class="kpi-card kpi-green">
@@ -250,6 +274,18 @@
                 <div class="financial-summary-item">
                     <span class="financial-label">Alertas Urgentes</span>
                     <span id="alertasUrgentes" class="financial-value highlight">0</span>
+                </div>
+            </div>
+
+            <!-- ALERTAS DE ATENCIÓN (Clientes Urgentes) -->
+            <div class="card alerts-card" id="alertsSection">
+                <div class="card-header">
+                    <h3 class="card-title">Clientes que Requieren Atención Inmediata</h3>
+                </div>
+                <div class="card-body">
+                    <div id="alertsList" class="alerts-list">
+                        <!-- Alertas insertadas por JS -->
+                    </div>
                 </div>
             </div>
 
