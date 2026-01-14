@@ -1,0 +1,52 @@
+El Problema a Resolver
+
+Actualmente, detectar que un cliente se quiere ir es difícil porque:
+
+- Los datos están dispersos (Excel, correos, llamadas).
+- El análisis es reactivo (nos damos cuenta cuando no renuevan).
+- No hay claridad sobre qué cliente priorizar (¿Atiendo al que se queja mucho o al que paga más?).
+
+---
+
+### 3. La Solución Propuesta: "Customer Health AI Agent"
+
+No haremos solo un dashboard. Haremos un **Sistema de Inteligencia Híbrida**.
+
+#### A. El Concepto
+
+Una plataforma web minimalista que centraliza la salud del cliente en un solo indicador (Health Score) y usa IA para decirnos qué hacer.
+
+#### B. Arquitectura Híbrida (Nuestra Ventaja Secreta)
+
+Para ganar, proponemos una arquitectura técnica que combina:
+
+1.  **Motor de Reglas (Local - JavaScript):**
+
+    - _Función:_ Calcular el riesgo matemático (0-100).
+    - _Por qué:_ Las matemáticas no pueden alucinar. Necesitamos precisión exacta para métricas como "Nivel de Servicio" o "Puntualidad".
+    - _Ventaja:_ Funciona instantáneamente y sin internet.
+
+2.  **Cerebro Generativo (Nube - Gemini API):**
+    - _Función:_ Analizar el contexto y recomendar estrategias.
+    - _Por qué:_ Un `if-else` no puede escribir un correo de disculpa ni sugerir una estrategia de negociación compleja. La IA sí.
+    - _Ventaja:_ Factor se ve bien en la demo.
+
+---
+
+### 4. Experiencia de Usuario (UX/UI)
+
+- **Flujo:**
+  1.  **Radar:** El director ve cuánto dinero está en riesgo hoy.
+  2.  **Foco:** El KAM entra al detalle de un cliente específico.
+  3.  **Acción:** El Chatbot le dice exactamente qué hacer (ej. "Llama al Director de Operaciones antes del viernes").
+
+---
+
+### 5. Plan de Ejecución (Roadmap)
+
+
+### 6. Preguntas para el Equipo
+
+1. ¿Quién se encarga de definir los pesos de las métricas (ej. qué es más grave: una queja o baja puntualidad)?
+
+---

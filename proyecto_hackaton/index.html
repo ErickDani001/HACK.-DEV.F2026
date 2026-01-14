@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Health Dashboard | TRAXIÓN</title>
+    <meta
+      name="description"
+      content="Sistema de detección temprana de clientes en riesgo para TRAXIÓN"
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Chart.js para gráficas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <!-- ============================================ -->
+    <!-- HEADER -->
+    <!-- ============================================ -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <span class="logo-text">TRAXIÓN</span>
+            </div>
+            <div class="header-divider"></div>
+            <div class="header-title">Customer Health Dashboard</div>
+        </div>
+        <div class="header-right">
+            <span id="currentDate" class="header-date"></span>
+        </div>
+    </header>
+
+    <div class="main-container">
+        
+        <!-- ============================================ -->
+        <!-- TABS -->
+        <!-- ============================================ -->
+        <div class="tabs">
+            <button class="tab active" data-tab="individual">Análisis Individual</button>
+            <button class="tab" data-tab="radar">Vista de Cartera</button>
+            <button class="tab" data-tab="chat">Asistente IA</button>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- VISTA INDIVIDUAL -->
+        <!-- ============================================ -->
+        <div id="tab-individual" class="tab-content active">
+            <div class="grid-2-cols">
+                <!-- COLUMNA IZQUIERDA: INPUTS -->
+                <div class="form-column">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Datos del Cliente</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="formEvaluar" class="form">
+                                <div class="form-group">
+                                    <label class="form-label">Seleccionar Cliente Existente</label>
+                                    <select id="selectCliente" class="form-select">
+                                        <option value="">-- Nuevo Análisis --</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-divider">O ingresar datos manuales</div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Nombre del Cliente</label>
+                                    <input type="text" id="nombreCliente" class="form-input" placeholder="Ej. Corporativo ABC">
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Nivel de Servicio (%)</label>
+                                        <input type="number" id="nivelServicio" class="form-input" min="0" max="100" value="90">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Puntualidad (%)</label>
+                                        <input type="number" id="puntualidad" class="form-input" min="0" max="100" value="90">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">NPS (0-100)</label>
+                                        <input type="number" id="nps" class="form-input" min="-100" max="100" value="50">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Quejas Abiertas</label>
+                                        <input type="number" id="quejas" class="form-input" min="0" value="0">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Tendencia Reciente</label>
+                                    <select id="tendencia" class="form-select">
+                                        <option value="positiva">Positiva (Mejorando)</option>
+                                        <option value="estable" selected>Estable</option>
+                                        <option value="negativa">Negativa (Empeorando)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-divider">Datos Financieros</div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Valor Contrato (Anual)</label>
+                                        <input type="number" id="valorContrato" class="form-input" value="1000000">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Meses para Renovación</label>
+                                        <input type="number" id="mesesContrato" class="form-input" value="12">
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    Ejecutar Análisis de Riesgo
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMNA DERECHA: RESULTADOS -->
+                <div class="results-column">
+                    
+                    <!-- ESTADO VACÍO -->
+                    <div id="resultsEmpty" class="results-empty">
+                        <h3>Esperando datos</h3>
+                        <p>Ingrese los datos del cliente y ejecute el análisis para ver el reporte de riesgo.</p>
+                    </div>
+
+                    <!-- CONTENIDO RESULTADOS -->
+                    <div id="resultsContent" class="results-panel hidden">
+                        
+                        <!-- SEMÁFORO -->
+                        <div class="risk-semaphore">
+                            <div id="semaphoreCircle" class="semaphore-indicator"></div>
+                            <div class="semaphore-info">
+                                <h3 id="semaphoreLevel">--</h3>
+                                <span id="semaphoreScore" class="semaphore-score">Score: --/100</span>
+                            </div>
+                            <div id="resultsClientName" class="results-client-name"></div>
+                        </div>
+
+                        <!-- GRID SUPERIOR -->
+                        <div class="form-row">
+                            <!-- DESGLOSE -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title-sm">Desglose de Métricas</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div id="metricsList" class="metrics-list">
+                                        <!-- Items insertados por JS -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- GRÁFICA -->
+                            <div class="card chart-card">
+                                <div class="card-header">
+                                    <h4 class="card-title-sm">Tendencia Histórica</h4>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="trendChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ACCIONES -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title-sm">Plan de Acción Recomendado</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="actionsList" class="actions-list">
+                                    <!-- Acciones insertadas por JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FINANCIERO -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title-sm">Proyección Financiera</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="financialGrid" class="financial-grid">
+                                    <!-- Items financieros -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- VISTA RADAR (CARTERA) -->
+        <!-- ============================================ -->
+        <div id="tab-radar" class="tab-content">
+            <!-- KPIs -->
+            <div class="kpi-grid">
+                <div class="kpi-card kpi-green">
+                    <div class="kpi-info">
+                        <span id="kpiBajo" class="kpi-val">0</span>
+                        <span class="kpi-label">Riesgo Bajo</span>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-yellow">
+                    <div class="kpi-info">
+                        <span id="kpiMedio" class="kpi-val">0</span>
+                        <span class="kpi-label">Riesgo Medio</span>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-red">
+                    <div class="kpi-info">
+                        <span id="kpiAlto" class="kpi-val">0</span>
+                        <span class="kpi-label">Riesgo Alto</span>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-black">
+                    <div class="kpi-info">
+                        <span id="kpiCritico" class="kpi-val">0</span>
+                        <span class="kpi-label">Riesgo Crítico</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESUMEN FINANCIERO -->
+            <div class="financial-summary">
+                <div class="financial-summary-item">
+                    <span class="financial-label">Valor Total Cartera</span>
+                    <span id="valorTotalCartera" class="financial-value">$0.0M</span>
+                </div>
+                <div class="financial-summary-item risk">
+                    <span class="financial-label">Valor en Riesgo</span>
+                    <span id="valorEnRiesgo" class="financial-value">$0.0M</span>
+                </div>
+                <div class="financial-summary-item">
+                    <span class="financial-label">Alertas Urgentes</span>
+                    <span id="alertasUrgentes" class="financial-value highlight">0</span>
+                </div>
+            </div>
+
+            <!-- TABLA -->
+            <div class="card table-card">
+                <div class="card-header">
+                    <h3 class="card-title">Prioridad de Atención</h3>
+                </div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Cliente</th>
+                                <th>Score</th>
+                                <th>Nivel Riesgo</th>
+                                <th>Renovación</th>
+                                <th>Valor</th>
+                                <th>Acción Principal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientesTableBody">
+                            <!-- Filas insertadas por JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- VISTA CHAT -->
+        <!-- ============================================ -->
+        <div id="tab-chat" class="tab-content">
+            <div class="grid-2-cols">
+                <div class="chat-info">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Asistente Virtual</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted" style="margin-bottom: 1rem;">
+                                Utilice el asistente para consultar el estado de la cartera, analizar clientes específicos o solicitar recomendaciones estratégicas.
+                            </p>
+                            <div class="chat-suggestions">
+                                <button class="suggestion-btn" data-msg="Analiza Corporativo ABC">Analiza Corporativo ABC</button>
+                                <button class="suggestion-btn" data-msg="Muestra clientes en riesgo alto">Ver riesgo alto</button>
+                                <button class="suggestion-btn" data-msg="Resumen de la cartera">Resumen cartera</button>
+                                <button class="suggestion-btn" data-msg="¿Qué hago con Industrias GHI?">Recomendación GHI</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-container">
+                    <div id="chatHistory" class="chat-history">
+                        <div class="chat-message bot">
+                            <div class="chat-bubble">
+                                <p><strong>Bienvenido.</strong> Soy el asistente de Customer Health. ¿En qué puedo ayudarle hoy?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <form id="chatForm" class="chat-form">
+                            <input type="text" id="chatInput" class="chat-input" placeholder="Escriba su consulta aquí...">
+                            <button type="submit" class="chat-btn">Enviar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============================================ -->
+    <!-- FOOTER -->
+    <!-- ============================================ -->
+    <footer class="footer">
+      <p>
+        Hackatón Bécalos Traxión Tech Challenge 2025 | Eje 2: Detección Temprana
+        de Clientes en Riesgo
+      </p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/agente-ia.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
