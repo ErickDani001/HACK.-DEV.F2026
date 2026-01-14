@@ -491,84 +491,141 @@ function actualizarFinanciero(financiero) {
 }
 
 // ============================================================================
-// ANÁLISIS AUTOMÁTICO DEL AGENTE IA (GEMINI)
+// ANÁLISIS AUTOMÁTICO DEL AGENTE IA (GEMINI) - WIDGET FLOTANTE
 // ============================================================================
 
+// Toggle del widget flotante
+function toggleAgentWidget() {
+    const panel = document.getElementById('agentPanel');
+    const badge = document.getElementById('agentBadge');
+    
+    panel.classList.toggle('hidden');
+    
+    // Ocultar badge cuando se abre
+    if (!panel.classList.contains('hidden')) {
+        badge.classList.add('hidden');
+    }
+}
+
+// Mostrar notificación en el badge del widget
+function notificarAgentWidget() {
+    const badge = document.getElementById('agentBadge');
+    const panel = document.getElementById('agentPanel');
+    
+    // Solo mostrar badge si el panel está cerrado
+    if (panel.classList.contains('hidden')) {
+        badge.classList.remove('hidden');
+    }
+}
+
 async function generarAnalisisIA(resultado) {
-    const container = document.getElementById('agentResponse');
-    if (!container) return;
+    // Actualizar tanto el panel embebido como el widget flotante
+    const containerEmbedded = document.getElementById('agentResponse');
+    const containerWidget = document.getElementById('agentPanelContent');
     
     const { cliente, analisis, recomendaciones, impactoFinanciero } = resultado;
     
-    // Mostrar estado de carga
-    container.innerHTML = '<div class="agent-loading">Generando análisis del agente...</div>';
+    // Mostrar estado de carga en ambos lugares
+    const loadingHTML = '<div class="agent-loading">Generando análisis del agente...</div>';
+    if (containerEmbedded) containerEmbedded.innerHTML = loadingHTML;
+    if (containerWidget) containerWidget.innerHTML = loadingHTML;
     
-    // Crear prompt automático basado en el contexto del cliente
+    // Crear prompt MEJORADO con todas las métricas y contexto detallado
+    const historicoStr = cliente.historico ? cliente.historico.map(h => 
+        `${h.mes}: NPS=${h.nps}, Puntualidad=${h.puntualidad}%, NS=${h.nivelServicio}%, Quejas=${h.quejas}`
+    ).join('\n        ') : 'No disponible';
+    
     const prompt = `
-        Como experto en Customer Success para Traxión, analiza este cliente y da tu recomendación ejecutiva.
-        
-        CLIENTE: ${cliente.nombre}
-        INDUSTRIA: ${cliente.industria}
-        ANTIGÜEDAD: ${cliente.antiguedad} meses
-        
-        MÉTRICAS ACTUALES:
-        - Nivel de Servicio: ${cliente.metricas.nivelServicio}%
-        - Puntualidad: ${cliente.metricas.puntualidad}%
-        - NPS: ${cliente.metricas.nps}
-        - Quejas Abiertas: ${cliente.metricas.quejas}
-        - Tendencia: ${cliente.metricas.tendencia}
-        
-        ANÁLISIS:
-        - Score de Riesgo: ${analisis.score}/100
-        - Nivel: ${analisis.clasificacion.nivel}
-        
-        CONTRATO:
-        - Valor Anual: $${(cliente.valorContrato / 1000000).toFixed(1)}M MXN
-        - Meses para Renovación: ${cliente.contrato.mesesRestantes}
-        
-        IMPACTO FINANCIERO:
-        - Probabilidad de Pérdida: ${(impactoFinanciero.probabilidadPerdida * 100).toFixed(0)}%
-        - Pérdida Esperada: $${(impactoFinanciero.perdidaEsperada / 1000000).toFixed(2)}M
-        
-        INSTRUCCIONES:
-        1. Da un diagnóstico breve y directo (2-3 líneas).
-        2. Lista los 3 pasos de acción más importantes ordenados por prioridad.
-        3. Indica el responsable y plazo para cada acción.
-        4. Sé conciso, profesional y usa formato estructurado.
-        5. NO uses emojis. Usa negritas (**texto**) para destacar.
-    `;
+ERES UN CONSULTOR EXPERTO EN CUSTOMER SUCCESS PARA TRAXIÓN (EMPRESA DE LOGÍSTICA Y TRANSPORTE EN MÉXICO).
+
+===== DATOS DEL CLIENTE =====
+NOMBRE: ${cliente.nombre}
+INDUSTRIA: ${cliente.industria}
+ANTIGÜEDAD COMO CLIENTE: ${cliente.antiguedad} meses
+
+===== MÉTRICAS OPERATIVAS ACTUALES =====
+• Nivel de Servicio: ${cliente.metricas.nivelServicio}% ${cliente.metricas.nivelServicio < 90 ? '⚠️ BAJO' : cliente.metricas.nivelServicio < 95 ? '⚡ MEJORABLE' : '✓ OK'}
+• Puntualidad en Entregas: ${cliente.metricas.puntualidad}% ${cliente.metricas.puntualidad < 90 ? '⚠️ CRÍTICO' : cliente.metricas.puntualidad < 95 ? '⚡ ATENCIÓN' : '✓ OK'}
+• NPS (Net Promoter Score): ${cliente.metricas.nps} ${cliente.metricas.nps < 30 ? '🔴 DETRACTOR CRÍTICO' : cliente.metricas.nps < 50 ? '🟡 PASIVO' : '🟢 PROMOTOR'}
+• Quejas Abiertas Sin Resolver: ${cliente.metricas.quejas} ${cliente.metricas.quejas >= 3 ? '🔴 URGENTE' : cliente.metricas.quejas > 0 ? '🟡 PENDIENTE' : '✓ SIN QUEJAS'}
+• Tendencia General: ${cliente.metricas.tendencia.toUpperCase()} ${cliente.metricas.tendencia === 'negativa' ? '📉 DETERIORO' : cliente.metricas.tendencia === 'positiva' ? '📈 MEJORA' : '➡️ ESTABLE'}
+
+===== HISTÓRICO ÚLTIMOS 6 MESES =====
+${historicoStr}
+
+===== ANÁLISIS DE RIESGO =====
+• SCORE DE SALUD: ${analisis.score}/100 puntos
+• CLASIFICACIÓN: ${analisis.clasificacion.nivel}
+• DESCRIPCIÓN: ${analisis.clasificacion.descripcion}
+
+===== INFORMACIÓN CONTRACTUAL =====
+• Valor Anual del Contrato: $${(cliente.valorContrato / 1000000).toFixed(2)} millones MXN
+• Meses para Renovación: ${cliente.contrato.mesesRestantes} meses ${cliente.contrato.mesesRestantes <= 3 ? '⚠️ URGENTE' : ''}
+• Renovación Automática: ${cliente.contrato.renovacionAutomatica ? 'SÍ' : 'NO - REQUIERE NEGOCIACIÓN'}
+
+===== IMPACTO FINANCIERO PROYECTADO =====
+• Probabilidad de Perder al Cliente: ${(impactoFinanciero.probabilidadPerdida * 100).toFixed(0)}%
+• Pérdida Esperada si se va: $${(impactoFinanciero.perdidaEsperada / 1000000).toFixed(2)} millones MXN
+• Costo de Intervención Recomendado: $${(impactoFinanciero.costoIntervencion / 1000).toFixed(0)} mil MXN
+• ROI de Intervenir: ${(impactoFinanciero.roiIntervencion * 100).toFixed(0)}%
+
+===== INSTRUCCIONES PARA TU RESPUESTA =====
+
+Basándote en TODOS los datos anteriores, proporciona:
+
+1. **DIAGNÓSTICO EJECUTIVO** (máximo 3 líneas)
+   - ¿Cuál es el problema principal?
+   - ¿Qué tan urgente es?
+
+2. **PLAN DE ACCIÓN INMEDIATO** (exactamente 3 acciones)
+   Para CADA acción indica:
+   - Qué hacer específicamente
+   - Quién es responsable (cargo)
+   - Plazo exacto (ej: "48 horas", "esta semana", "15 días")
+   - Resultado esperado
+
+3. **INDICADOR DE ÉXITO**
+   - ¿Cómo sabremos que funcionó?
+
+FORMATO: Usa **negritas** para destacar. NO uses emojis en tu respuesta. Sé CONCRETO y ACCIONABLE.
+`;
+
+    let contenidoFinal = '';
     
     try {
         // Consultar Gemini
         const respuestaIA = await window.CustomerHealthAgent.consultarGemini(prompt, resultado);
         
-        // Formatear y mostrar respuesta
-        let mensajeFormateado = respuestaIA
+        // Formatear respuesta
+        contenidoFinal = respuestaIA
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\n/g, '<br>')
             .replace(/- /g, '• ');
         
-        container.innerHTML = `<div class="agent-content">${mensajeFormateado}</div>`;
-        
     } catch (error) {
         console.error('Error en análisis IA:', error);
         
-        // Fallback: Mostrar análisis local
-        const fallback = `
-            <div class="agent-content">
-                <strong>Diagnóstico:</strong> Cliente con riesgo ${analisis.clasificacion.nivel}. 
-                Score actual de ${analisis.score}/100 con tendencia ${cliente.metricas.tendencia}.<br><br>
-                
-                <strong>Acciones Prioritarias:</strong><br>
-                ${recomendaciones.slice(0, 3).map((r, i) => 
-                    `${i+1}. <strong>${r.accion}</strong> - ${r.responsable} (${r.plazo})`
-                ).join('<br>')}<br><br>
-                
-                <strong>Nota:</strong> Análisis generado localmente. Configure la API Key de Gemini para recomendaciones avanzadas.
-            </div>
+        // Fallback: Mostrar análisis local si OpenRouter falla
+        contenidoFinal = `
+            <strong>Diagnóstico:</strong> Cliente con riesgo ${analisis.clasificacion.nivel}. 
+            Score actual de ${analisis.score}/100 con tendencia ${cliente.metricas.tendencia}.<br><br>
+            
+            <strong>Acciones Prioritarias:</strong><br>
+            ${recomendaciones.slice(0, 3).map((r, i) => 
+                `${i+1}. <strong>${r.accion}</strong> - ${r.responsable} (${r.plazo})`
+            ).join('<br>')}<br><br>
+            
+            <em style="color: #888; font-size: 0.85rem;">Análisis generado localmente (OpenRouter: ${error.message})</em>
         `;
-        container.innerHTML = fallback;
     }
+    
+    // Actualizar ambos contenedores
+    const htmlFinal = `<div class="agent-content">${contenidoFinal}</div>`;
+    if (containerEmbedded) containerEmbedded.innerHTML = htmlFinal;
+    if (containerWidget) containerWidget.innerHTML = htmlFinal;
+    
+    // Notificar que hay nuevo contenido en el widget
+    notificarAgentWidget();
 }
 
 // ============================================================================

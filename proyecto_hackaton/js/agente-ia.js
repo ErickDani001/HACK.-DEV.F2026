@@ -8,10 +8,12 @@
 const CustomerHealthAgent = {
     
     // =========================================================================
-    // CONFIGURACIÓN
+    // CONFIGURACIÓN - OPENROUTER (MODELOS GRATUITOS)
     // =========================================================================
-    GEMINI_API_KEY: "AIzaSyAsgtudwLrTQ4d1Ye-jTu_MMb0XmXqFRNI", // INGRESE SU API KEY AQUÍ
-    GEMINI_URL: "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
+    OPENROUTER_API_KEY: "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",
+    OPENROUTER_URL: "https://openrouter.ai/api/v1/chat/completions",
+    // Modelo gratuito disponible en OpenRouter
+    AI_MODEL: "meta-llama/llama-3.3-70b-instruct:free",
 
     // =========================================================================
     // BASE DE DATOS SIMULADA
@@ -460,50 +462,67 @@ const CustomerHealthAgent = {
     },
 
     // =========================================================================
-    // CHATBOT HÍBRIDO (GEMINI + FALLBACK)
+    // CHATBOT HÍBRIDO (OPENROUTER + FALLBACK)
     // =========================================================================
     
     consultarGemini: async function(mensaje, contexto) {
-        if (!this.GEMINI_API_KEY) {
-            throw new Error("API Key no configurada");
+        // Ahora usa OpenRouter en lugar de Gemini
+        if (!this.OPENROUTER_API_KEY) {
+            throw new Error("API Key de OpenRouter no configurada");
         }
 
-        const prompt = `
-            Actúa como un analista experto en Customer Success para Traxión.
-            
-            CONTEXTO DEL CLIENTE (JSON):
-            ${JSON.stringify(contexto)}
-            
-            PREGUNTA DEL USUARIO:
-            "${mensaje}"
-            
-            INSTRUCCIONES:
-            1. Responde de manera profesional, corporativa y concisa.
-            2. Usa datos del JSON para fundamentar tu respuesta.
-            3. Si el riesgo es ALTO o CRÍTICO, sugiere acciones inmediatas.
-            4. No uses emojis. Usa formato Markdown (negritas, listas).
-        `;
+        const systemPrompt = `Eres un analista experto en Customer Success para Traxión, una empresa de logística y transporte en México. 
+Tu rol es analizar datos de clientes y proporcionar recomendaciones claras y accionables.
+Responde siempre en español, de manera profesional y concisa.
+NO uses emojis. Usa negritas con **texto** para destacar puntos importantes.`;
+
+        const userMessage = typeof mensaje === 'string' ? mensaje : `
+Analiza este cliente y proporciona tu diagnóstico y plan de acción:
+
+DATOS DEL CLIENTE:
+${JSON.stringify(contexto, null, 2)}
+
+Proporciona:
+1. Diagnóstico breve (2-3 líneas)
+2. Los 3 pasos de acción más importantes
+3. Responsable y plazo para cada acción
+`;
 
         try {
-            const response = await fetch(`${this.GEMINI_URL}?key=${this.GEMINI_API_KEY}`, {
+            const response = await fetch(this.OPENROUTER_URL, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${this.OPENROUTER_API_KEY}`,
+                    "HTTP-Referer": window.location.href,
+                    "X-Title": "Customer Health Dashboard - Traxión"
+                },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }]
+                    model: this.AI_MODEL,
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        { role: "user", content: userMessage }
+                    ],
+                    max_tokens: 500,
+                    temperature: 0.7
                 })
             });
 
             const data = await response.json();
             
             if (data.error) {
-                throw new Error(data.error.message);
+                throw new Error(data.error.message || JSON.stringify(data.error));
             }
 
-            return data.candidates[0].content.parts[0].text;
+            if (!data.choices || !data.choices[0]) {
+                throw new Error("Respuesta vacía de OpenRouter");
+            }
+
+            return data.choices[0].message.content;
 
         } catch (error) {
-            console.error("Error Gemini:", error);
-            throw error; // Propagar error para usar fallback
+            console.error("Error OpenRouter:", error);
+            throw error;
         }
     },
 

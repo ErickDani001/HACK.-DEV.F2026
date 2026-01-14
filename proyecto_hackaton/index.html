@@ -360,6 +360,47 @@
     </div>
 
     <!-- ============================================ -->
+    <!-- WIDGET IA PROFESIONAL -->
+    <!-- ============================================ -->
+    <div id="agentWidget" class="widget-ia">
+        <!-- Botón flotante -->
+        <button id="agentToggle" class="widget-btn" onclick="toggleAgentWidget()">
+            <span class="widget-btn-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+            </span>
+            <span id="agentBadge" class="widget-badge hidden"></span>
+        </button>
+        
+        <!-- Panel -->
+        <div id="agentPanel" class="widget-panel hidden">
+            <div class="widget-header">
+                <div class="widget-header-info">
+                    <div class="widget-avatar">IA</div>
+                    <div>
+                        <div class="widget-title">Asistente de Análisis</div>
+                        <div class="widget-status">Listo para ayudar</div>
+                    </div>
+                </div>
+                <button class="widget-close" onclick="toggleAgentWidget()">×</button>
+            </div>
+            <div id="agentPanelContent" class="widget-body">
+                <div class="widget-welcome">
+                    <div class="widget-welcome-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9 9h.01M15 9h.01M8 13a4 4 0 0 0 8 0"/>
+                        </svg>
+                    </div>
+                    <p class="widget-welcome-title">Hola, soy tu asistente IA</p>
+                    <p class="widget-welcome-desc">Selecciona un cliente de la tabla para recibir un diagnóstico personalizado con plan de acción.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
     <!-- FOOTER -->
     <!-- ============================================ -->
     <footer class="footer">
