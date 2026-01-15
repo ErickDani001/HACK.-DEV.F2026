@@ -657,8 +657,21 @@ Probabilidad de Churn: [X]%
 
 ---
 
-# REGLAS ESTRICTAS
+# REGLAS ESTRICTAS - OBLIGATORIO SEGUIR
 
+⚠️ IMPORTANTE: DEBES incluir TODAS estas secciones en tu respuesta, EN ESTE ORDEN:
+
+1. **ACCIÓN INMEDIATA - HACER AHORA** (con: Qué hacer, Quién, Cuándo, Cómo, Qué decir)
+2. **CLASIFICACIÓN DE RIESGO** (Nivel, Score, Probabilidad de Churn)
+3. **LECTURA INTEGRAL DE MÉTRICAS** (tabla con todas las métricas)
+4. **TENDENCIAS NEGATIVAS DETECTADAS** (lista numerada)
+5. **PLAN DE ACCIONES** (URGENTE, ESTA SEMANA, PRÓXIMO MES)
+6. **SCRIPT SUGERIDO PARA LLAMAR AL CLIENTE**
+7. **IMPACTO SI NO ACTUAMOS** (valores financieros)
+
+NO omitas ninguna sección. Si no hay datos para una sección, indícalo explícitamente.
+
+REGLAS ADICIONALES:
 1. SIEMPRE empieza con la ACCIÓN INMEDIATA (lo más urgente primero)
 2. SIEMPRE responde en español profesional y ejecutivo
 3. NUNCA uses emojis
