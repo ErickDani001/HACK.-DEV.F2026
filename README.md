@@ -95,9 +95,9 @@ proyecto_hackaton/
 
 **Hackatón Bécalos Traxión Tech Challenge 2025**
 
-Edgar Gerardo Toledano Rocha
-Rosario Itzel Gomez Rodriguezs
-Erick Daniel Avila Martínez
+- Edgar Gerardo Toledano Rocha
+- Rosario Itzel Gomez Rodriguez
+- Erick Daniel Avila Martínez
 
 ---
 
