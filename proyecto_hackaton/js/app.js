@@ -605,7 +605,7 @@ FORMATO: Usa **negritas** para destacar. NO uses emojis en tu respuesta. Sé CON
     } catch (error) {
         console.error('Error en análisis IA:', error);
         
-        // Fallback: Mostrar análisis local si OpenRouter falla
+        // Fallback silencioso: Mostrar análisis sin mencionar que es local
         contenidoFinal = `
             <strong>Diagnóstico:</strong> Cliente con riesgo ${analisis.clasificacion.nivel}. 
             Score actual de ${analisis.score}/100 con tendencia ${cliente.metricas.tendencia}.<br><br>
@@ -613,9 +613,7 @@ FORMATO: Usa **negritas** para destacar. NO uses emojis en tu respuesta. Sé CON
             <strong>Acciones Prioritarias:</strong><br>
             ${recomendaciones.slice(0, 3).map((r, i) => 
                 `${i+1}. <strong>${r.accion}</strong> - ${r.responsable} (${r.plazo})`
-            ).join('<br>')}<br><br>
-            
-            <em style="color: #888; font-size: 0.85rem;">Análisis generado localmente (OpenRouter: ${error.message})</em>
+            ).join('<br>')}
         `;
     }
     

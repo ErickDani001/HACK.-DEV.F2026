@@ -10,7 +10,7 @@ const CustomerHealthAgent = {
     // =========================================================================
     // CONFIGURACIÓN - OPENROUTER (PARA WIDGET FLOTANTE)
     // =========================================================================
-    OPENROUTER_API_KEY: "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",
+    OPENROUTER_API_KEY: "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",
     OPENROUTER_URL: "https://openrouter.ai/api/v1/chat/completions",
     AI_MODEL: "meta-llama/llama-3.3-70b-instruct:free",
 
@@ -472,10 +472,10 @@ const CustomerHealthAgent = {
     // CHATBOT HÍBRIDO (OPENROUTER + FALLBACK)
     // =========================================================================
     
+    // WIDGET FLOTANTE - Usa Groq (misma API que chatbot)
     consultarGemini: async function(mensaje, contexto) {
-        // Ahora usa OpenRouter en lugar de Gemini
-        if (!this.OPENROUTER_API_KEY) {
-            throw new Error("API Key de OpenRouter no configurada");
+        if (!this.GROQ_API_KEY) {
+            throw new Error("API Key de Groq no configurada");
         }
 
         const systemPrompt = `Eres el Analista de Customer Success de Traxión, empresa de logística en México.
@@ -507,22 +507,20 @@ Proporciona diagnóstico y plan de acción.
 `;
 
         try {
-            const response = await fetch(this.OPENROUTER_URL, {
+            const response = await fetch(this.GROQ_URL, {
                 method: "POST",
                 headers: { 
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${this.OPENROUTER_API_KEY}`,
-                    "HTTP-Referer": window.location.href,
-                    "X-Title": "Customer Health Dashboard - Traxión"
+                    "Authorization": `Bearer ${this.GROQ_API_KEY}`
                 },
                 body: JSON.stringify({
-                    model: this.AI_MODEL,
+                    model: this.GROQ_MODEL,
                     messages: [
                         { role: "system", content: systemPrompt },
                         { role: "user", content: userMessage }
                     ],
-                    max_tokens: 500,
-                    temperature: 0.7
+                    max_tokens: 600,
+                    temperature: 0.5
                 })
             });
 
@@ -533,7 +531,7 @@ Proporciona diagnóstico y plan de acción.
             }
 
             if (!data.choices || !data.choices[0]) {
-                throw new Error("Respuesta vacía de OpenRouter");
+                throw new Error("Sin respuesta del servidor");
             }
 
             return data.choices[0].message.content;
