@@ -605,7 +605,7 @@ FORMATO: Usa **negritas** para destacar. NO uses emojis en tu respuesta. Sé CON
     } catch (error) {
         console.error('Error en análisis IA:', error);
         
-        // Fallback silencioso: Mostrar análisis sin mencionar que es local
+        // Fallback silencioso: Mostrar análisis local
         contenidoFinal = `
             <strong>Diagnóstico:</strong> Cliente con riesgo ${analisis.clasificacion.nivel}. 
             Score actual de ${analisis.score}/100 con tendencia ${cliente.metricas.tendencia}.<br><br>

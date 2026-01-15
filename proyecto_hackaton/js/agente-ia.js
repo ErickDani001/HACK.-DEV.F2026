@@ -8,11 +8,12 @@
 const CustomerHealthAgent = {
     
     // =========================================================================
-    // CONFIGURACIÓN - GROQ API (LLaMA 3.3 70B)
-    // Límites gratuitos: 14,400 req/día, 30 req/min, 40,000 tokens/min
+    // CONFIGURACIÓN - GROQ API (LLaMA 3.1 8B - Modelo eficiente)
+    // Límites gratuitos: 14,400 req/día, 30 req/min, 100,000 tokens/día
+    // NOTA: La API key se carga desde config.js (no incluido en git)
     // =========================================================================
-    GROQ_API_KEY: "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",
-    GROQ_MODEL: "llama-3.3-70b-versatile",
+    GROQ_API_KEY: (typeof CONFIG !== 'undefined' && CONFIG.GROQ_API_KEY) ? CONFIG.GROQ_API_KEY : "",
+    GROQ_MODEL: "llama-3.1-8b-instant",
     GROQ_URL: "https://api.groq.com/openai/v1/chat/completions",
 
     // =========================================================================
