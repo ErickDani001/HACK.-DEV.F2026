@@ -315,17 +315,8 @@
                         </div>
                         <div class="card-body">
                             <p class="text-muted" style="margin-bottom: 1.5rem; line-height: 1.6;">
-                                Consulte información de clientes, identifique riesgos y obtenga recomendaciones estratégicas para retención.
+                                Pregúntame lo que necesites saber sobre tus clientes. Puedo ayudarte a priorizar, resumir, comparar o explicar cualquier métrica.
                             </p>
-                            <p style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                                Consultas sugeridas
-                            </p>
-                            <div class="chat-suggestions">
-                                <button class="suggestion-btn" data-msg="Muestra los clientes en riesgo crítico">Ver riesgo crítico</button>
-                                <button class="suggestion-btn" data-msg="Analiza Corporativo ABC">Analizar ABC</button>
-                                <button class="suggestion-btn" data-msg="Dame el resumen de la cartera">Resumen cartera</button>
-                                <button class="suggestion-btn" data-msg="Qué acciones recomiendas para Industrias GHI">Plan para GHI</button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -334,14 +325,20 @@
                     <div id="chatHistory" class="chat-history">
                         <div class="chat-message bot">
                             <div class="chat-bubble">
-                                <p><strong>Bienvenido.</strong></p>
-                                <p style="margin-top: 0.5rem; color: var(--text-light);">Soy el asistente de Customer Success. Puede consultarme sobre cualquier cliente o solicitar un análisis de la cartera.</p>
+                                <p><strong>Hola, soy tu asistente de Customer Success.</strong></p>
+                                <p style="margin-top: 0.5rem; color: var(--text-light);">Pregúntame en lenguaje natural, por ejemplo:</p>
+                                <ul style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem; padding-left: 1.2rem;">
+                                    <li>"¿A quién debo llamar primero?"</li>
+                                    <li>"¿Cómo está la cartera?"</li>
+                                    <li>"¿Cuál cliente está peor?"</li>
+                                    <li>"¿Qué es el NPS?"</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
                     <div class="chat-input-container">
                         <form id="chatForm" class="chat-form">
-                            <input type="text" id="chatInput" class="chat-input" placeholder="Escriba su consulta...">
+                            <input type="text" id="chatInput" class="chat-input" placeholder="Ej: ¿A quién llamo hoy? ¿Cómo está Industrias GHI?">
                             <button type="submit" class="chat-btn">Enviar</button>
                         </form>
                     </div>
