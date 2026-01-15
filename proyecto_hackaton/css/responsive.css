@@ -1273,3 +1273,472 @@
         color: #000;
     }
 }
+
+/* ============================================
+   ESTILOS RESPONSIVOS ADICIONALES FALTANTES
+   ============================================ */
+
+/* Header Left y elementos del logo para Tablet Landscape */
+@media (min-width: 768px) and (max-width: 991px) {
+    .header-left {
+        gap: 0.75rem;
+    }
+
+    .logo-text {
+        font-size: 1.1rem;
+    }
+
+    .header-date {
+        font-size: 0.8rem;
+    }
+}
+
+/* Form Divider responsivo */
+@media (max-width: 767px) {
+    .form-divider {
+        font-size: 0.7rem;
+        padding: 0.75rem 0;
+        margin: 0.5rem 0;
+    }
+}
+
+@media (max-width: 479px) {
+    .form-divider {
+        font-size: 0.6rem;
+        padding: 0.5rem 0;
+        margin: 0.375rem 0;
+    }
+}
+
+/* Results Panel y Results Client Name */
+@media (max-width: 991px) {
+    .results-panel {
+        padding: 0;
+    }
+
+    .results-client-name {
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+}
+
+@media (max-width: 575px) {
+    .results-client-name {
+        font-size: 0.8rem;
+        text-align: center;
+        width: 100%;
+    }
+}
+
+/* Hidden class utility */
+.hidden {
+    display: none !important;
+}
+
+/* Chart Card responsivo */
+@media (max-width: 991px) {
+    .chart-card {
+        min-height: 250px;
+    }
+
+    .chart-card canvas {
+        max-height: 200px;
+    }
+}
+
+@media (max-width: 575px) {
+    .chart-card {
+        min-height: 200px;
+    }
+
+    .chart-card canvas {
+        max-height: 180px;
+    }
+}
+
+/* Typing Indicator responsivo */
+@media (max-width: 575px) {
+    .typing-indicator {
+        padding: 6px 10px;
+        gap: 3px;
+    }
+
+    .typing-indicator span {
+        width: 5px;
+        height: 5px;
+    }
+}
+
+@media (max-width: 479px) {
+    .typing-indicator {
+        padding: 4px 8px;
+        gap: 2px;
+    }
+
+    .typing-indicator span {
+        width: 4px;
+        height: 4px;
+    }
+}
+
+/* Chat Message (diferente de chat-msg) */
+@media (max-width: 767px) {
+    .chat-message {
+        max-width: 90%;
+    }
+
+    .chat-message.bot .chat-bubble,
+    .chat-message.user .chat-bubble {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 479px) {
+    .chat-message {
+        max-width: 95%;
+    }
+
+    .chat-message.bot .chat-bubble,
+    .chat-message.user .chat-bubble {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.75rem;
+    }
+}
+
+/* Financial Summary Items */
+@media (min-width: 992px) {
+    .financial-summary {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .financial-summary-item.risk {
+        background: var(--danger-bg);
+        border-left: 3px solid var(--danger-text);
+    }
+
+    .financial-label {
+        font-size: 0.7rem;
+    }
+
+    .financial-value {
+        font-size: 1.1rem;
+    }
+
+    .financial-value.highlight {
+        color: var(--danger-text);
+    }
+}
+
+@media (max-width: 479px) {
+    .financial-summary-item.risk {
+        border-left-width: 2px;
+    }
+
+    .financial-label {
+        font-size: 0.65rem;
+    }
+
+    .financial-value {
+        font-size: 0.95rem;
+    }
+}
+
+/* Agent Loading y Agent Placeholder */
+@media (max-width: 575px) {
+    .agent-loading {
+        padding: 1.5rem;
+        font-size: 0.85rem;
+    }
+
+    .agent-loading::before {
+        width: 24px;
+        height: 24px;
+        border-width: 2px;
+        margin-bottom: 12px;
+    }
+
+    .agent-placeholder {
+        font-size: 0.8rem;
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 479px) {
+    .agent-loading {
+        padding: 1rem;
+        font-size: 0.75rem;
+    }
+
+    .agent-loading::before {
+        width: 20px;
+        height: 20px;
+        margin-bottom: 8px;
+    }
+
+    .agent-placeholder {
+        font-size: 0.7rem;
+        padding: 0.75rem;
+    }
+}
+
+/* Real Time Alert responsivo */
+@media (max-width: 767px) {
+    .realtime-alert {
+        padding: 0.75rem 1rem;
+    }
+
+    .realtime-alert-content {
+        gap: 0.75rem;
+    }
+
+    .realtime-alert-icon {
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+    }
+
+    .realtime-alert-text strong {
+        font-size: 0.8rem;
+    }
+
+    .realtime-alert-text p {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 479px) {
+    .realtime-alert {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .realtime-alert-content {
+        gap: 0.5rem;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .realtime-alert-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 10px;
+    }
+
+    .realtime-alert-text strong {
+        font-size: 0.75rem;
+    }
+
+    .realtime-alert-text p {
+        font-size: 0.7rem;
+    }
+}
+
+/* Financial Grid ajustes adicionales */
+@media (min-width: 576px) and (max-width: 767px) {
+    .financial-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 575px) {
+    .fin-item {
+        padding: 0.75rem;
+    }
+
+    .fin-label {
+        font-size: 0.65rem;
+    }
+
+    .fin-value {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 479px) {
+    .fin-item {
+        padding: 0.5rem;
+    }
+
+    .fin-label {
+        font-size: 0.6rem;
+    }
+
+    .fin-value {
+        font-size: 0.85rem;
+    }
+}
+
+/* Tabs gap ajuste para todas las vistas */
+@media (min-width: 768px) and (max-width: 991px) {
+    .tabs {
+        gap: 1rem;
+    }
+}
+
+/* Card Title SM para dispositivos medianos */
+@media (min-width: 576px) and (max-width: 767px) {
+    .card-title-sm {
+        font-size: 0.9rem;
+    }
+}
+
+/* Btn Block responsivo */
+@media (max-width: 575px) {
+    .btn-block {
+        padding: 0.625rem 1rem;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 479px) {
+    .btn-block {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Priority Badge ajustes */
+@media (max-width: 575px) {
+    .priority-badge {
+        font-size: 0.6rem;
+        padding: 2px 5px;
+    }
+}
+
+/* Impact Tag en dispositivos medianos */
+@media (min-width: 576px) and (max-width: 767px) {
+    .impact-tag {
+        font-size: 0.65rem;
+        padding: 2px 5px;
+    }
+}
+
+/* Semaphore Info ajustes adicionales */
+@media (min-width: 576px) and (max-width: 767px) {
+    .semaphore-info h3 {
+        font-size: 1.1rem;
+    }
+
+    .semaphore-score {
+        font-size: 0.8rem;
+    }
+}
+
+/* Logo ajustes para dispositivos medianos */
+@media (min-width: 576px) and (max-width: 767px) {
+    .logo {
+        justify-content: center;
+    }
+
+    .logo-text {
+        font-size: 1.15rem;
+    }
+}
+
+/* Text Muted responsivo para el chat */
+@media (max-width: 575px) {
+    .text-muted {
+        font-size: 0.8rem;
+        line-height: 1.5;
+    }
+}
+
+@media (max-width: 479px) {
+    .text-muted {
+        font-size: 0.75rem;
+        line-height: 1.4;
+    }
+}
+
+/* Table Actions Column */
+@media (max-width: 767px) {
+    .data-table td:last-child {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 479px) {
+    .data-table td:last-child {
+        max-width: 80px;
+    }
+}
+
+/* Ajustes para el hover en dispositivos táctiles */
+@media (hover: none) and (pointer: coarse) {
+    .kpi-card:hover {
+        transform: none;
+        box-shadow: var(--shadow);
+    }
+
+    .widget-btn:hover {
+        transform: none;
+    }
+
+    .data-table tbody tr:hover {
+        background: transparent;
+    }
+
+    .alert-item:hover {
+        background: var(--danger-bg);
+    }
+}
+
+/* Focus visible para accesibilidad en teclado */
+@media (any-hover: hover) {
+    .tab:focus-visible,
+    .btn:focus-visible,
+    .form-input:focus-visible,
+    .form-select:focus-visible,
+    .chat-input:focus-visible,
+    .chat-btn:focus-visible,
+    .widget-btn:focus-visible,
+    .widget-close:focus-visible,
+    .suggestion-btn:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+}
+
+/* Ajustes de scroll suave */
+@media (max-width: 991px) {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    .chat-history,
+    .widget-body,
+    .table-card {
+        scroll-behavior: smooth;
+    }
+}
+
+/* Container para scroll horizontal indicador visual */
+@media (max-width: 767px) {
+    .table-card::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 20px;
+        background: linear-gradient(to left, rgba(255,255,255,0.9), transparent);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .table-card:hover::after {
+        opacity: 1;
+    }
+
+    .table-card {
+        position: relative;
+    }
+}
