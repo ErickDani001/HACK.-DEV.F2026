@@ -1,6 +1,6 @@
 /*
 ================================================================================
-    CUSTOMER HEALTH AGENT - LÓGICA HÍBRIDA (LOCAL + GEMINI AI)
+    CUSTOMER HEALTH AGENT - LÓGICA HÍBRIDA
     Hackatón Bécalos Traxión Tech Challenge 2025
 ================================================================================
 */
@@ -8,12 +8,19 @@
 const CustomerHealthAgent = {
     
     // =========================================================================
-    // CONFIGURACIÓN - OPENROUTER (MODELOS GRATUITOS)
+    // CONFIGURACIÓN - OPENROUTER (PARA WIDGET FLOTANTE)
     // =========================================================================
     OPENROUTER_API_KEY: "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",
     OPENROUTER_URL: "https://openrouter.ai/api/v1/chat/completions",
-    // Modelo gratuito disponible en OpenRouter
     AI_MODEL: "meta-llama/llama-3.3-70b-instruct:free",
+
+    // =========================================================================
+    // CONFIGURACIÓN - GROQ (PARA PESTAÑA ASISTENTE IA)
+    // =========================================================================
+    // Groq: API súper rápida, límites generosos (30 req/min, 15,000 tokens/min)
+    GROQ_API_KEY: "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",
+    GROQ_MODEL: "llama-3.3-70b-versatile",  // Modelo potente y rápido
+    GROQ_URL: "https://api.groq.com/openai/v1/chat/completions",
 
     // =========================================================================
     // BASE DE DATOS SIMULADA
@@ -471,21 +478,32 @@ const CustomerHealthAgent = {
             throw new Error("API Key de OpenRouter no configurada");
         }
 
-        const systemPrompt = `Eres un analista experto en Customer Success para Traxión, una empresa de logística y transporte en México. 
-Tu rol es analizar datos de clientes y proporcionar recomendaciones claras y accionables.
-Responde siempre en español, de manera profesional y concisa.
-NO uses emojis. Usa negritas con **texto** para destacar puntos importantes.`;
+        const systemPrompt = `Eres el Analista de Customer Success de Traxión, empresa de logística en México.
+
+OBJETIVO: Retener clientes identificando riesgos y proponiendo acciones concretas.
+
+REGLAS:
+1. Responde en español profesional
+2. NO uses emojis
+3. Usa negritas (**texto**) solo para datos críticos
+4. Máximo 3 acciones por respuesta
+5. Cada acción: Responsable + Plazo
+
+FORMATO:
+**Diagnóstico**: [Situación en 2 líneas]
+**Riesgo Principal**: [El problema más urgente]
+**Plan de Acción**:
+1. [Acción] - [Responsable] - [Plazo]
+2. [Acción] - [Responsable] - [Plazo]
+3. [Acción] - [Responsable] - [Plazo]
+
+Si falta información, indica qué datos necesitas.`;
 
         const userMessage = typeof mensaje === 'string' ? mensaje : `
-Analiza este cliente y proporciona tu diagnóstico y plan de acción:
-
-DATOS DEL CLIENTE:
+ANALIZA ESTE CLIENTE:
 ${JSON.stringify(contexto, null, 2)}
 
-Proporciona:
-1. Diagnóstico breve (2-3 líneas)
-2. Los 3 pasos de acción más importantes
-3. Responsable y plazo para cada acción
+Proporciona diagnóstico y plan de acción.
 `;
 
         try {
@@ -529,76 +547,106 @@ Proporciona:
     procesarMensaje: async function(mensaje) {
         const msg = mensaje.toLowerCase();
         
-        // 1. Identificar contexto (Cliente o Cartera)
-        let contexto = null;
-        let tipoContexto = "general";
-
+        // Construir contexto para el prompt
+        let contextoStr = "";
         const clienteEncontrado = this.clientes.find(c => msg.includes(c.nombre.toLowerCase()));
         
         if (clienteEncontrado) {
-            contexto = this.analizarCliente(clienteEncontrado);
-            tipoContexto = "cliente";
-        } else if (msg.includes("cartera") || msg.includes("resumen") || msg.includes("riesgo")) {
-            contexto = this.analizarCartera(this.clientes);
-            tipoContexto = "cartera";
+            const analisis = this.analizarCliente(clienteEncontrado);
+            contextoStr = `
+CLIENTE ESPECÍFICO:
+${JSON.stringify(analisis, null, 2)}
+`;
+        } else {
+            // Cartera general
+            const cartera = this.analizarCartera(this.clientes);
+            contextoStr = `
+RESUMEN DE CARTERA:
+- Total Clientes: ${this.clientes.length}
+- En Riesgo Alto/Crítico: ${cartera.alertasUrgentes}
+- Valor Total: $${(cartera.valorTotalCartera / 1000000).toFixed(1)}M
+- Valor en Riesgo: $${(cartera.valorEnRiesgo / 1000000).toFixed(1)}M
+
+CLIENTES:
+${this.clientes.map(c => `- ${c.nombre}: NPS ${c.metricas.nps}, Puntualidad ${c.metricas.puntualidad}%`).join('\n')}
+`;
         }
 
-        // 2. Intentar usar Gemini (Si hay contexto y API Key)
-        if (this.GEMINI_API_KEY) {
+        // Usar Groq API - Agente IA Profesional
+        if (this.GROQ_API_KEY && this.GROQ_API_KEY !== "") {
+            const systemPrompt = `Eres el Asistente de Customer Success de Traxión, empresa líder en logística y transporte en México.
+
+OBJETIVO PRINCIPAL:
+Ayudar al equipo a retener clientes proporcionando análisis precisos y recomendaciones accionables.
+
+REGLAS ESTRICTAS:
+1. Responde SIEMPRE en español profesional
+2. NO uses emojis bajo ninguna circunstancia
+3. Respuestas concisas: máximo 150 palabras
+4. Usa negritas (**texto**) solo para datos críticos
+5. Siempre incluye datos numéricos cuando estén disponibles
+6. Si falta información, indica qué necesitas saber
+
+FORMATO DE RESPUESTA:
+- Para análisis de cliente: Diagnóstico -> Riesgo -> Acciones
+- Para cartera: Resumen -> Alertas -> Prioridades
+- Para recomendaciones: Contexto -> Acción -> Responsable -> Plazo
+
+DATOS DISPONIBLES:
+${contextoStr}
+
+MÉTRICAS CLAVE A CONSIDERAR:
+- NPS < 30: Cliente detractor (riesgo alto)
+- Puntualidad < 85%: Problema operativo crítico
+- Quejas >= 3: Requiere atención inmediata
+- Renovación < 3 meses: Urgente negociación`;
+
+            const userPrompt = `CONSULTA: ${mensaje}
+
+Responde de forma directa y profesional, siguiendo las reglas establecidas.`;
+
             try {
-                const respuestaIA = await this.consultarGemini(mensaje, contexto || this.clientes);
-                return { tipo: "ia", mensaje: respuestaIA };
-            } catch (e) {
-                console.warn("Fallback a modo local:", e.message);
-            }
-        }
-
-        // 3. Fallback: Lógica Local (Reglas if-else)
-        if (tipoContexto === "cliente") {
-            const analisis = contexto;
-            return {
-                tipo: "analisis",
-                mensaje: `Análisis para **${clienteEncontrado.nombre}**:\n\n` +
-                         `Riesgo: **${analisis.analisis.clasificacion.nivel}** (Score: ${analisis.analisis.score}/100)\n` +
-                         `Acción recomendada: ${analisis.recomendaciones[0].accion}\n` +
-                         `Probabilidad de pérdida: ${(analisis.impactoFinanciero.probabilidadPerdida * 100).toFixed(0)}%`
-            };
-        }
-        
-        if (tipoContexto === "cartera") {
-            const cartera = contexto;
-            if (msg.includes("riesgo alto") || msg.includes("critico")) {
-                const criticos = cartera.clientesPorPrioridad.filter(r => r.analisis.score < 50);
-                if (criticos.length === 0) return { tipo: "texto", mensaje: "No hay clientes en riesgo alto actualmente." };
-                let respuesta = "Clientes con mayor riesgo:\n\n";
-                criticos.forEach(c => {
-                    respuesta += `- **${c.cliente.nombre}**: Riesgo ${c.analisis.clasificacion.nivel} (Score ${c.analisis.score})\n`;
+                const response = await fetch(this.GROQ_URL, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${this.GROQ_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: this.GROQ_MODEL,
+                        messages: [
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: userPrompt }
+                        ],
+                        temperature: 0.5,
+                        max_tokens: 600
+                    })
                 });
-                return { tipo: "lista", mensaje: respuesta };
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+                
+                if (!data.choices?.[0]?.message?.content) {
+                    throw new Error("Sin respuesta del servidor");
+                }
+                
+                return { tipo: "ia", mensaje: data.choices[0].message.content };
+
+            } catch (e) {
+                console.error("Error:", e);
+                return { 
+                    tipo: "error", 
+                    mensaje: `Error de conexión: ${e.message}` 
+                };
             }
-            
-            return {
-                tipo: "resumen",
-                mensaje: `Resumen de Cartera:\n\n` +
-                         `Total Clientes: ${this.clientes.length}\n` +
-                         `Alertas Urgentes: **${cartera.alertasUrgentes}**\n` +
-                         `Valor en Riesgo: $${(cartera.valorEnRiesgo / 1000000).toFixed(1)}M`
-            };
         }
 
-        if (msg.includes("ayuda") || msg.includes("hola")) {
-            return {
-                tipo: "texto",
-                mensaje: "Soy el asistente de Customer Health. Puedo ayudarle con:\n\n" +
-                         "- Análisis de clientes específicos (ej. 'Analiza Corporativo ABC')\n" +
-                         "- Resumen de la cartera (ej. 'Muestra la cartera')\n" +
-                         "- Identificación de riesgos (ej. 'Clientes en riesgo alto')"
-            };
-        }
-
-        return {
-            tipo: "texto",
-            mensaje: "No entendí su consulta. Intente preguntar por un cliente específico o por el estado de la cartera."
+        return { 
+            tipo: "error", 
+            mensaje: "API no configurada. Revise la configuración del sistema." 
         };
     }
 };

@@ -316,24 +316,27 @@
         </div>
 
         <!-- ============================================ -->
-        <!-- VISTA CHAT -->
+        <!-- VISTA CHAT - MINIMALISTA -->
         <!-- ============================================ -->
         <div id="tab-chat" class="tab-content">
             <div class="grid-2-cols">
                 <div class="chat-info">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Asistente Virtual</h3>
+                            <h3 class="card-title">Asistente IA</h3>
                         </div>
                         <div class="card-body">
-                            <p class="text-muted" style="margin-bottom: 1rem;">
-                                Utilice el asistente para consultar el estado de la cartera, analizar clientes específicos o solicitar recomendaciones estratégicas.
+                            <p class="text-muted" style="margin-bottom: 1.5rem; line-height: 1.6;">
+                                Consulte información de clientes, identifique riesgos y obtenga recomendaciones estratégicas para retención.
+                            </p>
+                            <p style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                                Consultas sugeridas
                             </p>
                             <div class="chat-suggestions">
-                                <button class="suggestion-btn" data-msg="Analiza Corporativo ABC">Analiza Corporativo ABC</button>
-                                <button class="suggestion-btn" data-msg="Muestra clientes en riesgo alto">Ver riesgo alto</button>
-                                <button class="suggestion-btn" data-msg="Resumen de la cartera">Resumen cartera</button>
-                                <button class="suggestion-btn" data-msg="¿Qué hago con Industrias GHI?">Recomendación GHI</button>
+                                <button class="suggestion-btn" data-msg="Muestra los clientes en riesgo crítico">Ver riesgo crítico</button>
+                                <button class="suggestion-btn" data-msg="Analiza Corporativo ABC">Analizar ABC</button>
+                                <button class="suggestion-btn" data-msg="Dame el resumen de la cartera">Resumen cartera</button>
+                                <button class="suggestion-btn" data-msg="Qué acciones recomiendas para Industrias GHI">Plan para GHI</button>
                             </div>
                         </div>
                     </div>
@@ -343,13 +346,14 @@
                     <div id="chatHistory" class="chat-history">
                         <div class="chat-message bot">
                             <div class="chat-bubble">
-                                <p><strong>Bienvenido.</strong> Soy el asistente de Customer Health. ¿En qué puedo ayudarle hoy?</p>
+                                <p><strong>Bienvenido.</strong></p>
+                                <p style="margin-top: 0.5rem; color: var(--text-light);">Soy el asistente de Customer Success. Puede consultarme sobre cualquier cliente o solicitar un análisis de la cartera.</p>
                             </div>
                         </div>
                     </div>
                     <div class="chat-input-container">
                         <form id="chatForm" class="chat-form">
-                            <input type="text" id="chatInput" class="chat-input" placeholder="Escriba su consulta aquí...">
+                            <input type="text" id="chatInput" class="chat-input" placeholder="Escriba su consulta...">
                             <button type="submit" class="chat-btn">Enviar</button>
                         </form>
                     </div>
